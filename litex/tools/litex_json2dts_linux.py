@@ -500,7 +500,7 @@ def generate_dts(d, initrd_start=None, initrd_size=None, initrd=None, root_devic
             }};
 """.format(
     usb_ohci_mem_base  = d["memories"]["usb_ohci_ctrl"]["base"],
-    usb_ohci_interrupt = "" if polling else "interrupts = <{}>;".format(16)) # FIXME
+    usb_ohci_interrupt = "" if polling else "interrupts = <{}>;".format(d["constants"]["usb_ohci_interrupt"]))
 
     # SPI Flash ------------------------------------------------------------------------------------
 
@@ -518,6 +518,40 @@ def generate_dts(d, initrd_start=None, initrd_size=None, initrd=None, root_devic
                 }};
             }};
 """.format(spiflash_csr_base=d["csr_bases"]["spiflash"], spiflash_size=d["memories"]["spiflash"]["size"])
+
+    # PCIE HOST ------------------------------------------------------------------------------------
+    if "pcie_host_ecam" in d["memories"]:
+        dts += """
+            pcie0: pcie@{pcie_ecam_base:08x} {{
+		compatible = "xlnx,axi-pcie-host-1.00.a";
+		reg = <0x{pcie_ecam_base:08x} 0x{pcie_ecam_size:08x}>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		#interrupt-cells = <1>;
+		device_type = "pci";
+		interrupts = <{pcie_interrupt} 4>;
+		interrupt-parent = <&intc0>;
+		interrupt-map-mask = <0 0 0 7>;
+		interrupt-map = <0 0 0 1 &pci0_intc 1>,
+				<0 0 0 2 &pci0_intc 2>,
+				<0 0 0 3 &pci0_intc 3>,
+				<0 0 0 4 &pci0_intc 4>;
+		ranges = <0x82000000 0 0x{pcie_mmio_base:08x} 0x{pcie_mmio_base:08x} 0 0x{pcie_mmio_size:08x}>;
+		bus-range = <0x00 0xff>;
+		status = "okay";
+
+		pci0_intc: interrupt-controller {{
+		    interrupt-controller;
+		    #address-cells = <0>;
+		    #interrupt-cells = <1>;
+		}};
+	    }};
+""".format(
+    pcie_ecam_base  = d["memories"]["pcie_host_ecam"]["base"],
+    pcie_ecam_size  = d["memories"]["pcie_host_ecam"]["size"],
+    pcie_mmio_base  = d["memories"]["pcie_host_mmio"]["base"],
+    pcie_mmio_size  = d["memories"]["pcie_host_mmio"]["size"],
+    pcie_interrupt  = d["constants"]["pcie_host_interrupt"])
 
     # SPI-SDCard -----------------------------------------------------------------------------------
 
