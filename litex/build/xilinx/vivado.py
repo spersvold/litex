@@ -330,7 +330,7 @@ class XilinxVivadoToolchain(GenericToolchain):
         # Synthesis
         if self._synth_mode == "vivado":
             tcl.append("\n# Synthesis\n")
-            synth_cmd = f"synth_design -directive {self.vivado_synth_directive} -top {self._build_name} -part {self.platform.device}"
+            synth_cmd = f"synth_design -directive {self.vivado_synth_directive} -top {self._build_name} -part {self.platform.device} -retiming"
             if self.platform.verilog_include_paths:
                 synth_cmd += f" -include_dirs {{{' '.join(self.platform.verilog_include_paths)}}}"
             tcl.append(synth_cmd)
