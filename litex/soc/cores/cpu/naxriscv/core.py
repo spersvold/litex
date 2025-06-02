@@ -40,7 +40,8 @@ class NaxRiscv(CPU):
     gcc_triple           = CPU_GCC_TRIPLE_RISCV32
     linker_output_format = "elf32-littleriscv"
     nop                  = "nop"
-    io_regions           = {0x8000_0000: 0x8000_0000} # Origin, Length.
+    io_regions           = {0x8000_0000: 0x8000_0000, # Origin, Length.
+                            0x2000_0000: 0x2000_0000} # Origin, Length.
 
     # Default parameters.
     with_fpu         = False
